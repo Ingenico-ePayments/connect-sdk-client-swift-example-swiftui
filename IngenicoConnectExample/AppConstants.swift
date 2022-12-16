@@ -13,7 +13,7 @@ public class AppConstants {
     static let sdkBundle = Bundle(path: SDKConstants.kSDKBundlePath!)!
     public static var appBundle = Bundle.main
     static let AppLocalizable = "AppLocalizable"
-    static let ApplicationIdentifier = "Swift Example Application/v2.4.0"
+    static let ApplicationIdentifier = "SwiftUI Example Application/v1.0.0"
     static let ClientSessionId = "ClientSessionId"
     static let CustomerId = "CustomerId"
     static let MerchantId = "MerchantId"
