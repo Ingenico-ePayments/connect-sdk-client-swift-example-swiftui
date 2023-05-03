@@ -5,7 +5,6 @@
 //  Copyright © 2022 Global Collect Services. All rights reserved.
 //
 
-
 import Foundation
 import IngenicoConnectKit
 
@@ -74,4 +73,3 @@ extension ValidationErrorResidentId {
         return "residentIdNumber"
     }
 }
-

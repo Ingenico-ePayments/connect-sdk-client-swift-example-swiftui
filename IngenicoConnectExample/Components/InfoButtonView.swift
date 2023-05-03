@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct InfoButtonView: View {
-    var buttonCallback: (()->Void)?
+    var buttonCallback: (() -> Void)?
 
     var body: some View {
         Image(systemName: "info.circle")

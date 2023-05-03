@@ -9,9 +9,9 @@ import IngenicoConnectKit
 import SwiftUI
 
 struct PaymentItemListScreen: View {
-    
+
     @SwiftUI.Environment(\.presentationMode) var presentationMode
-    
+
     @ObservedObject var viewModel: ViewModel
 
     // MARK: Body
@@ -29,7 +29,7 @@ struct PaymentItemListScreen: View {
                 }
                 .padding(.top)
                 .padding(.leading)
-                
+
                 HeaderView()
                 ScrollView {
                     if viewModel.hasAccountsOnFile && !viewModel.accountsOnFile.isEmpty {
@@ -46,11 +46,19 @@ struct PaymentItemListScreen: View {
                     }
                 }
                 .padding(.top, 15)
-                
+
                 NavigationLink("", isActive: $viewModel.showCardProductScreen) {
-                    CardProductScreen(viewModel: .init(paymentItem: viewModel.selectedPaymentItem, session: viewModel.session, context: viewModel.context, accountOnFile: viewModel.selectedAccountOnFile))
+                    CardProductScreen(
+                        viewModel:
+                                .init(
+                                    paymentItem: viewModel.selectedPaymentItem,
+                                    session: viewModel.session,
+                                    context: viewModel.context,
+                                    accountOnFile: viewModel.selectedAccountOnFile
+                                )
+                    )
                 }
-                
+
                 NavigationLink("", isActive: $viewModel.showSuccessScreen) {
                     EndScreen(viewModel: EndScreen.ViewModel(preparedPaymentRequest: viewModel.preparedPaymentRequest))
                 }
@@ -70,7 +78,7 @@ struct PaymentItemListScreen: View {
             UITableView.appearance().separatorStyle = .none
         }
     }
-    
+
     private var accountsOnFileList: some View {
         ForEach(viewModel.accountsOnFile, id: \.paymentProductIdentifier) { item in
             PaymentListItemRowView(image: item.logo, text: item.name)
@@ -81,7 +89,7 @@ struct PaymentItemListScreen: View {
                 .padding(.vertical, 5)
         }
     }
-    
+
     private var paymentItemsList: some View {
         ForEach(viewModel.paymentProductRows, id: \.paymentProductIdentifier) { item in
             PaymentListItemRowView(image: item.logo, text: item.name)
@@ -92,7 +100,7 @@ struct PaymentItemListScreen: View {
                 .padding(.vertical, 5)
         }
     }
-    
+
     // MARK: Helpers
     private func getAlert() -> Alert {
         return Alert(

@@ -9,9 +9,9 @@ import IngenicoConnectKit
 import SwiftUI
 
 struct EndScreen: View {
-    
+
     @ObservedObject var viewModel: ViewModel
-    
+
     var body: some View {
         ScrollView {
             VStack(alignment: .center, spacing: 20) {
@@ -19,18 +19,22 @@ struct EndScreen: View {
                     .font(.largeTitle)
                 Text("SuccessText".localized)
                     .font(.headline)
-                Button(viewModel.showEnryptedFields ? "EncryptedDataResultShow".localized : "EncryptedDataResultShow".localized) {
+                Button(
+                    viewModel.showEnryptedFields ?
+                    "EncryptedDataResultShow".localized :
+                    "EncryptedDataResultShow".localized
+                ) {
                     viewModel.showEnryptedFields.toggle()
                 }
-                
+
                 if viewModel.showEnryptedFields {
                     Text(viewModel.preparedPaymentRequest?.encryptedFields ?? "")
                     Text(viewModel.preparedPaymentRequest?.encodedClientMetaInfo ?? "")
                 }
-                
+
                 Button(action: {
                     viewModel.copyToClipboard()
-                }) {
+                }, label: {
                     Text("CopyEncryptedDataLabel".localized)
                         .foregroundColor(.green)
                         .padding(10)
@@ -38,11 +42,11 @@ struct EndScreen: View {
                             RoundedRectangle(cornerRadius: 5)
                                 .stroke(Color.green, lineWidth: 2)
                         )
-                }
-                
+                })
+
                 Button(action: {
                     viewModel.returnToStart()
-                }) {
+                }, label: {
                     Text("ReturnToStart".localized)
                         .foregroundColor(.red)
                         .padding(10)
@@ -50,9 +54,7 @@ struct EndScreen: View {
                             RoundedRectangle(cornerRadius: 5)
                                 .stroke(Color.red, lineWidth: 2)
                         )
-                }
-
-                
+                })
             }
             .padding()
         }

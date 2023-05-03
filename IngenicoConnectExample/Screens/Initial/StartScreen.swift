@@ -8,11 +8,11 @@
 import SwiftUI
 
 struct StartScreen: View {
-    
+
     @ObservedObject var viewModel: ViewModel
-    
+
     @State private var showBottomSheet: Bool = false
-    
+
     // MARK: Body
     var body: some View {
         NavigationView {
@@ -29,7 +29,14 @@ struct StartScreen: View {
                         .padding()
                     }
                     NavigationLink("", isActive: $viewModel.showPaymentList) {
-                        PaymentItemListScreen(viewModel: PaymentItemListScreen.ViewModel(paymentItems: viewModel.paymentItems, session: viewModel.session, context: viewModel.context))
+                        PaymentItemListScreen(
+                            viewModel:
+                                PaymentItemListScreen.ViewModel(
+                                    paymentItems: viewModel.paymentItems,
+                                    session: viewModel.session,
+                                    context: viewModel.context
+                                )
+                        )
                     }
                 }
                 .alert(isPresented: $viewModel.showAlert, content: getAlert)
@@ -45,7 +52,7 @@ struct StartScreen: View {
             }.edgesIgnoringSafeArea(.bottom)
         }
     }
-    
+
     private var clientSectionDetailsView: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("ClientSessionDetails".localized)
@@ -55,38 +62,46 @@ struct StartScreen: View {
                 text: $viewModel.clientSessionId,
                 errorText: viewModel.clientSessionIdError,
                 isSecureTextEntry: false,
-                isFocused: { _ in }) {
+                isFocused: { _ in },
+                buttonCallback: {
                     showBottomSheet(text: "ClientSessionIdentifierHint".localized)
                 }
+            )
             TextFieldView(
                 placeholder: "CustomerIdentifier".localized,
                 text: $viewModel.customerID,
                 errorText: viewModel.customerIDError,
                 isSecureTextEntry: false,
-                isFocused: { _ in }) {
+                isFocused: { _ in },
+                buttonCallback: {
                     showBottomSheet(text: "CustomerIdentifierHint".localized)
                 }
+            )
             TextFieldView(
                 placeholder: "ClientIdentifier".localized,
                 text: $viewModel.clientApiUrl,
                 errorText: viewModel.clientApiUrlError,
                 isSecureTextEntry: false,
-                isFocused: { _ in }) {
+                isFocused: { _ in },
+                buttonCallback: {
                     showBottomSheet(text: "ClientIdentifierHint".localized)
                 }
+            )
             TextFieldView(
                 placeholder: "AssetsURL".localized,
                 text: $viewModel.assetsUrl,
                 errorText: viewModel.assetsUrlError,
                 isSecureTextEntry: false,
-                isFocused: { _ in }) {
+                isFocused: { _ in },
+                buttonCallback: {
                     showBottomSheet(text: "AssetsURLHint".localized)
                 }
+            )
             HStack {
                 Spacer()
                 Button(action: {
                     viewModel.pasteFromJson()
-                }) {
+                }, label: {
                     Text("Paste".localized)
                         .foregroundColor(.green)
                         .padding(10)
@@ -94,11 +109,11 @@ struct StartScreen: View {
                             RoundedRectangle(cornerRadius: 5)
                                 .stroke(Color.green, lineWidth: 2)
                         )
-                }
+                })
             }
         }
     }
-    
+
     // MARK: Views
     private var paymentDetailsView: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -109,28 +124,34 @@ struct StartScreen: View {
                 text: $viewModel.amount,
                 errorText: viewModel.amountError,
                 isSecureTextEntry: false,
-                isFocused: { _ in }) {
+                isFocused: { _ in },
+                buttonCallback: {
                     showBottomSheet(text: "AmountInCentsHint".localized)
                 }
+            )
             TextFieldView(
                 placeholder: "CountryCode".localized,
                 text: $viewModel.countryCode,
                 errorText: viewModel.countryCodeError,
                 isSecureTextEntry: false,
-                isFocused: { _ in }) {
+                isFocused: { _ in },
+                buttonCallback: {
                     showBottomSheet(text: "CountryCodeHint".localized)
                 }
+            )
             TextFieldView(
                 placeholder: "CurrencyCode".localized,
                 text: $viewModel.currencyCode,
                 errorText: viewModel.currencyCodeError,
                 isSecureTextEntry: false,
-                isFocused: { _ in }) {
+                isFocused: { _ in },
+                buttonCallback: {
                     showBottomSheet(text: "CurrencyCodeHint".localized)
                 }
+            )
         }
     }
-    
+
     private var otherOptionsView: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("OtherOptions".localized)
@@ -153,28 +174,30 @@ struct StartScreen: View {
                     }
                 }
             }
-            
+
             Toggle(isOn: $viewModel.applePay) {
                 Text("Apple Pay")
             }
-            
+
             if viewModel.applePay {
-            TextFieldView(
-                placeholder: "MerchantId".localized,
-                text: $viewModel.merchantId,
-                errorText: viewModel.merchantIdError,
-                isSecureTextEntry: false,
-                isFocused: { _ in }) {
-                    showBottomSheet(text: "MerchantIdHint".localized)
-                }
+                TextFieldView(
+                    placeholder: "MerchantId".localized,
+                    text: $viewModel.merchantId,
+                    errorText: viewModel.merchantIdError,
+                    isSecureTextEntry: false,
+                    isFocused: { _ in },
+                    buttonCallback: {
+                        showBottomSheet(text: "MerchantIdHint".localized)
+                    }
+                )
             }
         }
     }
-    
+
     private var proceedButtonView: some View {
         Button(action: {
             viewModel.proceedToCheckout()
-        }) {
+        }, label: {
             Text("Checkout".localized)
                 .fontWeight(.semibold)
                 .padding()
@@ -182,14 +205,14 @@ struct StartScreen: View {
                 .frame(maxWidth: .infinity)
                 .background(Color.green)
                 .cornerRadius(5)
-        }
+        })
     }
-    
+
     private func showBottomSheet(text: String) {
         viewModel.infoText = text
         self.showBottomSheet = true
     }
-    
+
     private func getAlert() -> Alert {
         return Alert(
             title: Text("Something went wrong"),
@@ -197,7 +220,7 @@ struct StartScreen: View {
             dismissButton: .default(Text("OK"))
         )
     }
-    
+
 }
 
 struct InitialScreen_Previews: PreviewProvider {

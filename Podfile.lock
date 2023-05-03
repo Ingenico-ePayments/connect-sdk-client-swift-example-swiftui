@@ -1,13 +1,11 @@
 PODS:
-  - Alamofire (5.6.1)
+  - Alamofire (5.6.4)
   - CryptoSwift (1.4.0)
-  - IngenicoConnectKit (5.7.0):
+  - IngenicoConnectKit (5.11.0):
     - Alamofire (~> 5.4)
     - CryptoSwift (= 1.4.0)
 
 DEPENDENCIES:
-  - Alamofire
-  - CryptoSwift
   - IngenicoConnectKit
 
 SPEC REPOS:
@@ -17,10 +15,10 @@ SPEC REPOS:
     - IngenicoConnectKit
 
 SPEC CHECKSUMS:
-  Alamofire: 87bd8c952f9a4454320fce00d9cc3de57bcadaf5
+  Alamofire: 4e95d97098eacb88856099c4fc79b526a299e48c
   CryptoSwift: 7cc902df1784de3b389a387756c7d710f197730c
-  IngenicoConnectKit: 156c7b3b12b0516a35453b4c881b6f172397737e
+  IngenicoConnectKit: 653c477869262ec77674633519e177e037189d4c
 
-PODFILE CHECKSUM: 04963991fc0f543ca5db3570d0ee317976b46d47
+PODFILE CHECKSUM: 461db9705e5a53f2b3fc9bb3a9d2426e486e0d59
 
 COCOAPODS: 1.11.3

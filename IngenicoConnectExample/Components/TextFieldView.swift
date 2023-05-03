@@ -8,13 +8,12 @@
 import SwiftUI
 
 struct TextFieldView: View {
-    
+
     private enum Constants {
         static let offset: CGFloat = -18
-        static let headerTextSize: CGFloat = 13
         static let normalTextSize: CGFloat = 16
     }
-    
+
     // MARK: - Properties
 
     var placeholder: String
@@ -24,20 +23,16 @@ struct TextFieldView: View {
     var autocapitalization: UITextAutocapitalizationType
     var keyboardType: UIKit.UIKeyboardType
     var isFocused: (Bool) -> Void
-    var buttonCallback: (()->Void)?
-    
+    var buttonCallback: (() -> Void)?
+
     // MARK: State
 
     @Binding var text: String
     @State private var isSecureTextOn: Bool = true
-    
-    // MARK: Computed
 
-    private func clearText() { text = "" }
-    
     // MARK: - Init
 
-    public init(
+    init(
         placeholder: String = "Placeholder",
         text: Binding<String>,
         errorText: String?,
@@ -46,7 +41,7 @@ struct TextFieldView: View {
         autocorrection: Bool = false,
         autocapitalization: UITextAutocapitalizationType = .none,
         keyboardType: UIKit.UIKeyboardType = .default,
-        buttonCallback: (()->Void)? = nil
+        buttonCallback: (() -> Void)? = nil
     ) {
         self._text = text
         self.errorText = errorText
@@ -58,9 +53,9 @@ struct TextFieldView: View {
         self.keyboardType = keyboardType
         self.buttonCallback = buttonCallback
     }
-    
+
     // MARK: - Body
-    
+
     var body: some View {
         ZStack(alignment: .leading) {
             HStack(spacing: 20) {
@@ -115,7 +110,7 @@ struct TextFieldView: View {
                         }
                     }
                 }
-              
+
             }
             .frame(height: 20)
         }
@@ -130,42 +125,42 @@ struct TextFieldView: View {
 // MARK: - Previews
 struct TextFieldView_Previews: PreviewProvider {
     static var previews: some View {
-        
+
         TextFieldView(
             text: .constant("some example text"),
             errorText: "this is a short error",
             isFocused: { _ in }
         )
             .previewLayout(.sizeThatFits)
-        
+
         TextFieldView(
             placeholder: "Password",
             text: .constant("some example text"),
             errorText: "",
             isSecureTextEntry: true,
-            isFocused:  { _ in },
+            isFocused: { _ in },
             autocorrection: false,
             autocapitalization: .none,
             keyboardType: .default
         )
             .previewLayout(.sizeThatFits)
-        
+
         TextFieldView(
             placeholder: "Password",
             text: .constant("some example text"),
             errorText: "this is a very long error this, is a very long error, this is a very long error",
             isSecureTextEntry: true,
-            isFocused:  { _ in }
+            isFocused: { _ in }
         )
             .previewLayout(.sizeThatFits)
             .preferredColorScheme(.dark)
-        
+
         TextFieldView(
             placeholder: "Password",
             text: .constant("some example text"),
             errorText: "",
             isSecureTextEntry: true,
-            isFocused:  { _ in },
+            isFocused: { _ in },
             autocorrection: false,
             autocapitalization: .none,
             keyboardType: .default
@@ -173,6 +168,5 @@ struct TextFieldView_Previews: PreviewProvider {
             .previewLayout(.sizeThatFits)
             .preferredColorScheme(.dark)
     }
-    
-    
+
 }

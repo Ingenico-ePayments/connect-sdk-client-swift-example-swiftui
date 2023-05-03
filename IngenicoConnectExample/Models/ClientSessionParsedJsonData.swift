@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ClientSessionParsedJsonData : Codable {
+struct ClientSessionParsedJsonData: Codable {
     var clientId: String?
     var customerId: String?
     var baseUrl: String?

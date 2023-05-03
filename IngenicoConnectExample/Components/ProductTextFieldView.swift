@@ -8,20 +8,16 @@
 import SwiftUI
 
 struct ProductTextFieldView: View {
-    
+
     enum ImageState {
         case none
         case info
         case image(Image)
     }
-    
+
     // MARK: State
     @Binding var text: String
-    
-    // MARK: Computed
 
-    private func clearText() { text = "" }
-    
     // MARK: - Properties
     var leadingImage: Image
     var trailingImage: ImageState
@@ -32,14 +28,12 @@ struct ProductTextFieldView: View {
     var keyboardType: UIKit.UIKeyboardType
     var onEditingChanged: (Bool) -> Void
     var onCommit: () -> Void
-    var buttonCallback: (()->Void)?
-    
-    
+    var buttonCallback: (() -> Void)?
+
     // MARK: - Init
-    public init(
+    init(
         leadingImage: Image,
         trailingImage: ImageState = .info,
-        hasInfoButton: Bool = true,
         placeholder: String = "Placeholder",
         text: Binding<String>,
         accentColor: Color = Color(UIColor.darkGray),
@@ -48,7 +42,7 @@ struct ProductTextFieldView: View {
         errorText: String?,
         onEditingChanged: @escaping (Bool) -> Void,
         onCommit: @escaping () -> Void,
-        buttonCallback: (()->Void)? = nil
+        buttonCallback: (() -> Void)? = nil
     ) {
         self._text = text
         self.accentColor = accentColor
@@ -62,7 +56,7 @@ struct ProductTextFieldView: View {
         self.onCommit = onCommit
         self.buttonCallback = buttonCallback
     }
-    
+
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
@@ -113,7 +107,7 @@ struct ProductTextFieldView: View {
             }
         }
     }
-    
+
     private func cardImage(image: Image) -> some View {
         image
             .resizable()
@@ -121,7 +115,7 @@ struct ProductTextFieldView: View {
             .frame(width: 25, height: 25)
             .padding(.trailing, 10)
     }
-    
+
     private var infoImage: some View {
         Image(systemName: "info.circle")
             .foregroundColor(accentColor)
@@ -132,7 +126,7 @@ struct ProductTextFieldView: View {
                 }
             }
     }
-    
+
     private var errorImage: some View {
         Image(systemName: "exclamationmark.circle.fill")
             .foregroundColor(.red)
@@ -148,19 +142,19 @@ struct ProductTextField_Previews: PreviewProvider {
                          errorText: nil,
                          onEditingChanged: { _ in }, onCommit: {})
             .previewLayout(.sizeThatFits)
-        
+
         ProductTextFieldView(leadingImage: Image(systemName: "creditcard"),
                          text: .constant("12345"),
                          errorText: nil,
                          onEditingChanged: { _ in }, onCommit: {})
             .previewLayout(.sizeThatFits)
-        
+
         ProductTextFieldView(leadingImage: Image(systemName: "creditcard"),
                          text: .constant("******"),
                          errorText: "error mesage",
                          onEditingChanged: { _ in }, onCommit: {})
             .previewLayout(.sizeThatFits)
-        
+
         ProductTextFieldView(leadingImage: Image(systemName: "creditcard"),
                          text: .constant("******"),
                          errorText: "error mesage error mesage error mesage error mesage error mesage error mesage",

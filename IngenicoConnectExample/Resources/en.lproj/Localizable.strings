@@ -60,10 +60,10 @@
 "AmountInCentsHint" = "The amount that will be used for this payment. Note that the value must be provided in the smallest possible denominator for the currency, and should be formatted before showing.";
 
 "CountryCode" = "Country code";
-"CountryCodeHint" = "The ISO XXXX 2-letter Country Code of the consumer.";
+"CountryCodeHint" = "The ISO 3166-1 alpha-2 standard 2-letter Country Code of the consumer.";
 
 "CurrencyCode" = "Currency code";
-"CurrencyCodeHint" = "The ISO XXXX 3-letter Currency Code of the currency in which the payment will be made.";
+"CurrencyCodeHint" = "The ISO 4217 standard 3-letter Currency Code of the currency in which the payment will be made.";
 
 "RecurringPayment" = "Payment is recurring";
 "RecurringPaymentHint" = "Indicates whether the payment product that is used for this payment should support recurring payments. If set to true, products not supporting recurring will be filtered.";

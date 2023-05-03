@@ -7,16 +7,16 @@
 
 import SwiftUI
 
-public enum BottomSheetHeaderType {
+enum BottomSheetHeaderType {
     case title(String)
     case handle
 }
 
-public struct BottomSheetView<Content: View>: View {
-    
+struct BottomSheetView<Content: View>: View {
+
     private var dragToDismissThreshold: CGFloat { height * 0.2 }
     private var grayBackgroundOpacity: Double { isPresented ? (0.4 - Double(draggedOffset)/600) : 0 }
-    
+
     @State private var draggedOffset: CGFloat = 0
     @State private var previousDragValue: DragGesture.Value?
 
@@ -29,8 +29,8 @@ public struct BottomSheetView<Content: View>: View {
     private let topBarBackgroundColor: Color
     private let showTopIndicator: Bool
     private let headerType: BottomSheetHeaderType
-    
-    public init(
+
+    init(
         isPresented: Binding<Bool>,
         height: CGFloat,
         headerType: BottomSheetHeaderType = .handle,
@@ -55,8 +55,8 @@ public struct BottomSheetView<Content: View>: View {
         self.showTopIndicator = showTopIndicator
         self.content = content()
     }
-    
-    public var body: some View {
+
+    var body: some View {
         GeometryReader { geometry in
             ZStack {
                 self.fullScreenLightGrayOverlay()
@@ -72,11 +72,15 @@ public struct BottomSheetView<Content: View>: View {
                 .background(self.contentBackgroundColor)
                 .cornerRadius(self.topBarCornerRadius, corners: [.topLeft, .topRight])
                 .animation(.interactiveSpring())
-                .offset(y: self.isPresented ? (geometry.size.height/2 - self.height/2 + geometry.safeAreaInsets.bottom + self.draggedOffset) : (geometry.size.height/2 + self.height/2 + geometry.safeAreaInsets.bottom))
+                .offset(y:
+                    self.isPresented ?
+                    (geometry.size.height/2 - self.height/2 + geometry.safeAreaInsets.bottom + self.draggedOffset) :
+                    (geometry.size.height/2 + self.height/2 + geometry.safeAreaInsets.bottom)
+                )
             }
         }
     }
-    
+
     fileprivate func fullScreenLightGrayOverlay() -> some View {
         Color
             .black
@@ -85,7 +89,7 @@ public struct BottomSheetView<Content: View>: View {
             .animation(.interactiveSpring())
             .onTapGesture { self.isPresented = false }
     }
-    
+
     @ViewBuilder
     fileprivate func topBar(headerType: BottomSheetHeaderType, geometry: GeometryProxy) -> some View {
         ZStack {
@@ -123,10 +127,10 @@ public struct BottomSheetView<Content: View>: View {
         .gesture(
             DragGesture()
                 .onChanged({ (value) in
-                    
+
                     let offsetY = value.translation.height
                     self.draggedOffset = offsetY
-                    
+
                     if let previousValue = self.previousDragValue {
                         let previousOffsetY = previousValue.translation.height
                         let timeDiff = Double(value.time.timeIntervalSince(previousValue.time))
@@ -138,7 +142,7 @@ public struct BottomSheetView<Content: View>: View {
                         }
                     }
                     self.previousDragValue = value
-                    
+
                 })
                 .onEnded({ (value) in
                     let offsetY = value.translation.height

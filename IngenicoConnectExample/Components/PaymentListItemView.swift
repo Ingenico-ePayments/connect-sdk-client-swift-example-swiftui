@@ -10,7 +10,7 @@ import SwiftUI
 struct PaymentListItemView: View {
     var image: UIImage
     var text: String
-    
+
     var body: some View {
         HStack(spacing: 20) {
             Image(uiImage: image)

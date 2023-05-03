@@ -9,11 +9,9 @@ import Foundation
 import UIKit
 import IngenicoConnectKit
 
-public class AppConstants {
+class AppConstants {
     static let sdkBundle = Bundle(path: SDKConstants.kSDKBundlePath!)!
-    public static var appBundle = Bundle.main
-    static let AppLocalizable = "AppLocalizable"
-    static let ApplicationIdentifier = "SwiftUI Example Application/v1.0.0"
+    static let ApplicationIdentifier = "SwiftUI Example Application/v1.0.2"
     static let ClientSessionId = "ClientSessionId"
     static let CustomerId = "CustomerId"
     static let MerchantId = "MerchantId"

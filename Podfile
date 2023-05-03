@@ -6,8 +6,6 @@ target 'IngenicoConnectExample' do
   use_frameworks!
 
   # Pods for IngenicoConnectExample
-  pod 'IngenicoConnectKit', '~> 5.7'
-  pod 'Alamofire'
-  pod 'CryptoSwift'
+  pod 'IngenicoConnectKit', '~> 5.11'
 
 end

@@ -18,12 +18,17 @@ struct RoundedCorner: Shape {
     var corners: UIRectCorner = .allCorners
 
     func path(in rect: CGRect) -> Path {
-        let path = UIBezierPath(roundedRect: rect, byRoundingCorners: corners, cornerRadii: CGSize(width: radius, height: radius))
+        let path =
+            UIBezierPath(
+                roundedRect: rect,
+                byRoundingCorners: corners,
+                cornerRadii: CGSize(width: radius, height: radius)
+            )
         return Path(path.cgPath)
     }
 }
 
-public extension View {
+extension View {
     func bottomSheet<Content: View>(
         isPresented: Binding<Bool>,
         headerType: BottomSheetHeaderType,
@@ -47,12 +52,5 @@ public extension View {
                         showTopIndicator: showTopIndicator,
                         content: content)
         }
-    }
-}
-
-extension View {
-    
-    func hideKeyboard() {
-        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }

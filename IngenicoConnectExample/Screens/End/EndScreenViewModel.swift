@@ -10,17 +10,17 @@ import IngenicoConnectKit
 import MobileCoreServices
 
 extension EndScreen {
-    
+
     class ViewModel: ObservableObject {
-        
+
         @Published var showEnryptedFields: Bool = false
-        
+
         var preparedPaymentRequest: PreparedPaymentRequest?
 
         init(preparedPaymentRequest: PreparedPaymentRequest?) {
             self.preparedPaymentRequest = preparedPaymentRequest
         }
-        
+
         func copyToClipboard() {
             UIPasteboard.general.string = self.preparedPaymentRequest?.encryptedFields ?? ""
         }
@@ -28,6 +28,6 @@ extension EndScreen {
         func returnToStart() {
             NavigationUtil.popToRootView()
         }
-        
+
     }
 }
