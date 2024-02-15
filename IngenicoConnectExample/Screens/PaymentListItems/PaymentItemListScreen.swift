@@ -10,11 +10,12 @@ import SwiftUI
 
 struct PaymentItemListScreen: View {
 
+    // MARK: - State
     @SwiftUI.Environment(\.presentationMode) var presentationMode
 
     @ObservedObject var viewModel: ViewModel
 
-    // MARK: Body
+    // MARK: - Body
     var body: some View {
         LoadingView(isShowing: $viewModel.isLoading) {
             VStack {
@@ -52,8 +53,6 @@ struct PaymentItemListScreen: View {
                         viewModel:
                                 .init(
                                     paymentItem: viewModel.selectedPaymentItem,
-                                    session: viewModel.session,
-                                    context: viewModel.context,
                                     accountOnFile: viewModel.selectedAccountOnFile
                                 )
                     )
@@ -79,6 +78,7 @@ struct PaymentItemListScreen: View {
         }
     }
 
+    // MARK: - Views
     private var accountsOnFileList: some View {
         ForEach(viewModel.accountsOnFile, id: \.paymentProductIdentifier) { item in
             PaymentListItemRowView(image: item.logo, text: item.name)
@@ -101,7 +101,7 @@ struct PaymentItemListScreen: View {
         }
     }
 
-    // MARK: Helpers
+    // MARK: - Functions
     private func getAlert() -> Alert {
         return Alert(
             title: Text("Something went wrong"),
@@ -111,8 +111,7 @@ struct PaymentItemListScreen: View {
     }
 }
 
-struct PaymentListItemsScreen_Previews: PreviewProvider {
-    static var previews: some View {
-        PaymentItemListScreen(viewModel: PaymentItemListScreen.ViewModel(paymentItems: nil, session: nil, context: nil))
-    }
+// MARK: - Previews
+#Preview {
+    PaymentItemListScreen(viewModel: PaymentItemListScreen.ViewModel(paymentItems: nil))
 }

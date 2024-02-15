@@ -8,9 +8,11 @@
 import SwiftUI
 
 struct PaymentListItemRowView: View {
+    // MARK: - Properties
     var image: UIImage
     var text: String
 
+    // MARK: - Body
     var body: some View {
         ZStack {
             Color.white
@@ -21,13 +23,11 @@ struct PaymentListItemRowView: View {
     }
 }
 
-struct PaymentListItemCellView_Previews: PreviewProvider {
-    static var previews: some View {
-        List {
-            ForEach(0...5, id: \.self ) { _ in
-                PaymentListItemRowView(image: UIImage(), text: "Example text")
-            }
+// MARK: - Previews
+#Preview {
+    List {
+        ForEach(0...5, id: \.self ) { _ in
+            PaymentListItemRowView(image: UIImage(), text: "Example text")
         }
-
     }
 }

@@ -9,11 +9,12 @@ import SwiftUI
 
 struct StartScreen: View {
 
+    // MARK: - State
     @ObservedObject var viewModel: ViewModel
 
     @State private var showBottomSheet: Bool = false
 
-    // MARK: Body
+    // MARK: - Body
     var body: some View {
         NavigationView {
             LoadingView(isShowing: $viewModel.isLoading) {
@@ -32,9 +33,7 @@ struct StartScreen: View {
                         PaymentItemListScreen(
                             viewModel:
                                 PaymentItemListScreen.ViewModel(
-                                    paymentItems: viewModel.paymentItems,
-                                    session: viewModel.session,
-                                    context: viewModel.context
+                                    paymentItems: viewModel.paymentItems
                                 )
                         )
                     }
@@ -53,6 +52,7 @@ struct StartScreen: View {
         }
     }
 
+    // MARK: - Views
     private var clientSectionDetailsView: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("ClientSessionDetails".localized)
@@ -114,7 +114,6 @@ struct StartScreen: View {
         }
     }
 
-    // MARK: Views
     private var paymentDetailsView: some View {
         VStack(alignment: .leading, spacing: 20) {
             Text("PaymentDetails".localized)
@@ -208,6 +207,7 @@ struct StartScreen: View {
         })
     }
 
+    // MARK: - Functions
     private func showBottomSheet(text: String) {
         viewModel.infoText = text
         self.showBottomSheet = true
@@ -223,8 +223,7 @@ struct StartScreen: View {
 
 }
 
-struct InitialScreen_Previews: PreviewProvider {
-    static var previews: some View {
-        StartScreen(viewModel: StartScreen.ViewModel())
-    }
+// MARK: - Previews
+#Preview {
+    StartScreen(viewModel: StartScreen.ViewModel())
 }

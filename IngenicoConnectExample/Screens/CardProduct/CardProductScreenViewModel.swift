@@ -14,8 +14,6 @@ extension CardProductScreen {
     class ViewModel: ObservableObject {
 
         // MARK: - Properties
-        private var session: Session?
-        private var context: PaymentContext?
         private var creditCardFirstSixDigits: String = ""
         private var tokenize = false
         private var formatter = StringFormatter()
@@ -53,10 +51,8 @@ extension CardProductScreen {
         @Published var payIsActive: Bool = false
 
         // MARK: - Life cycle
-        init(paymentItem: PaymentItem?, session: Session?, context: PaymentContext?, accountOnFile: AccountOnFile?) {
+        init(paymentItem: PaymentItem?, accountOnFile: AccountOnFile?) {
             self.paymentItem = paymentItem
-            self.session = session
-            self.context = context
             self.accountOnFile = accountOnFile
 
             self.configureData()
@@ -177,67 +173,52 @@ extension CardProductScreen {
         }
 
         func validateCreditCard() {
-            guard let paymentRequest = paymentRequest else {
+            guard let creditCardField else {
                 return
             }
 
-            creditCardField?.validateValue(
-                value: self.unmaskedValue(forField: self.creditCardField),
-                for: paymentRequest
-            )
-            if creditCardField?.errors.count != 0 {
-                guard let error = creditCardField?.errors[0] else { return }
-                creditCardError = ErrorHandler.errorMessage(for: error, withCurrency: false)
-            } else {
-                creditCardError = nil
-            }
+            let errorMessageIds =
+                creditCardField.validateValue(value: self.unmaskedValue(forField: self.creditCardField))
+
+            creditCardError = getErrorMessage(validationErrors: errorMessageIds)
         }
 
         func validateExpiryDate() {
-            guard let paymentRequest = paymentRequest else {
+            guard let expiryDateField else {
                 return
             }
 
-            expiryDateField?.validateValue(
-                value: self.unmaskedValue(forField: self.expiryDateField),
-                for: paymentRequest
-            )
-            if expiryDateField?.errors.count != 0 {
-                guard let error = expiryDateField?.errors[0] else { return }
-                expiryDateError = ErrorHandler.errorMessage(for: error, withCurrency: false)
-            } else {
-                expiryDateError = nil
-            }
+            let errorMessageIds =
+                expiryDateField.validateValue(value: self.unmaskedValue(forField: self.expiryDateField))
+
+            expiryDateError = getErrorMessage(validationErrors: errorMessageIds)
         }
 
         func validateCVV() {
-            guard let paymentRequest = paymentRequest else {
+            guard let cvvField else {
                 return
             }
 
-            cvvField?.validateValue(value: self.unmaskedValue(forField: self.cvvField), for: paymentRequest)
-            if cvvField?.errors.count != 0 {
-                guard let error = cvvField?.errors[0] else { return }
-                cvvError = ErrorHandler.errorMessage(for: error, withCurrency: false)
-            } else {
-                cvvError = nil
-            }
+            let errorMessageIds = cvvField.validateValue(value: self.unmaskedValue(forField: self.cvvField))
+
+            cvvError = getErrorMessage(validationErrors: errorMessageIds)
         }
 
         func validateCardHolderName() {
-            guard let paymentRequest = paymentRequest else {
+            guard let cardHolderField else {
                 return
             }
-            cardHolderField?.validateValue(
-                value: self.unmaskedValue(forField: self.cardHolderField),
-                for: paymentRequest
-            )
-            if cardHolderField?.errors.count != 0 {
-                guard let error = cardHolderField?.errors[0] else { return }
-                cardHolderError = ErrorHandler.errorMessage(for: error, withCurrency: false)
-            } else {
-                cardHolderError = nil
-            }
+
+            let errorMessageIds =
+                cardHolderField.validateValue(value: self.unmaskedValue(forField: self.cardHolderField))
+
+            cardHolderError = getErrorMessage(validationErrors: errorMessageIds)
+        }
+
+        private func getErrorMessage(validationErrors: [ValidationError]) -> String? {
+            return validationErrors.count != 0 ?
+                ErrorHandler.errorMessage(for: validationErrors[0], withCurrency: false) :
+                nil
         }
 
         // MARK: - General Helpers
@@ -326,72 +307,86 @@ extension CardProductScreen {
 
             self.tokenize = rememberPaymentDetails
 
-            guard let session = session,
-                  let paymentRequest = self.paymentRequest else {
+            guard let paymentRequest = self.paymentRequest else {
                 return
             }
 
             self.isLoading = true
-            session.prepare(paymentRequest, success: {(_ preparedPaymentRequest: PreparedPaymentRequest) -> Void in
-                self.isLoading = false
 
-                // ***************************************************************************
-                //
-                // The information contained in preparedPaymentRequest is stored in such a way
-                // that it can be sent to the Ingenico ePayments platform via your server.
-                //
-                // ***************************************************************************
-                self.preparedPaymentRequest = preparedPaymentRequest
-                self.showEndScreen = true
-            }, failure: { _ in
-                self.isLoading = false
-                self.showAlert(text: "ConnectionErrorTitle".localized)
-            })
+            ConnectSDK.encryptPaymentRequest(
+                paymentRequest,
+                success: { preparedPaymentRequest in
+                    self.isLoading = false
 
+                    // ***************************************************************************
+                    //
+                    // The information contained in preparedPaymentRequest is stored in such a way
+                    // that it can be sent to the Ingenico ePayments platform via your server.
+                    //
+                    // ***************************************************************************
+                    self.preparedPaymentRequest = preparedPaymentRequest
+                    self.showEndScreen = true
+                },
+                failure: { error in
+                    self.isLoading = false
+                    self.showAlert(text: error.localizedDescription)
+                },
+                apiFailure: { errorResponse in
+                    self.isLoading = false
+                    self.showAlert(text: errorResponse.errors[0].message)
+                }
+            )
         }
 
         private func getIinDetails() {
-            guard let session = session, let context = context else {
-                return
-            }
-
-            session.iinDetails(
+            ConnectSDK.clientApi.iinDetails(
                 forPartialCreditCardNumber: self.unmaskedValue(forField: self.creditCardField),
-                context: context
-            ) { iinDetailsResponse in
-                switch iinDetailsResponse.status {
-                case .supported:
-                    if let newPaymentProduct = iinDetailsResponse.paymentProductId {
-                        session.paymentProduct(withId: newPaymentProduct, context: context) { paymentProduct in
-                            DispatchQueue.main.async {
-                                self.paymentItem = paymentProduct
-                                self.creditCardError = nil
-                            }
-                        } failure: { error in
-                            self.showAlert(text: error.localizedDescription)
-                        }
+                success: { iinDetailsResponse in
+                    switch iinDetailsResponse.status {
+                    case .supported:
+                        self.switchToPaymentProduct(paymentProductId: iinDetailsResponse.paymentProductId)
+                    case .existingButNotAllowed:
+                        self.creditCardError =
+                            NSLocalizedString(
+                                "gc.general.paymentProductFields.validationErrors.allowedInContext.label",
+                                tableName: SDKConstants.kSDKLocalizable,
+                                bundle: AppConstants.sdkBundle,
+                                value: "",
+                                comment:
+                                    """
+                                    The card you entered is not supported.
+                                    Please enter another card or try another payment method.
+                                    """
+                            )
+                    default:
+                        self.showAlert(text: "iinUnknown".localized)
                     }
-                case .existingButNotAllowed:
-                    self.creditCardError =
-                        NSLocalizedString(
-                            "gc.general.paymentProductFields.validationErrors.allowedInContext.label",
-                            tableName: SDKConstants.kSDKLocalizable,
-                            bundle: AppConstants.sdkBundle,
-                            value: "",
-                            comment:
-                                """
-                                The card you entered is not supported.
-                                Please enter another card or try another payment method.
-                                """
-                        )
-                default:
-                    self.showAlert(text: "iinUnknown".localized)
+                },
+                failure: { error in
+                    self.showAlert(text: error.localizedDescription)
+                },
+                apiFailure: { errorResponse in
+                    self.showAlert(text: errorResponse.errors[0].message)
                 }
+            )
+        }
 
-            } failure: { error in
-                self.showAlert(text: error.localizedDescription)
+        private func switchToPaymentProduct(paymentProductId: String?) {
+            if let paymentProductId {
+                ConnectSDK.clientApi.paymentProduct(
+                    withId: paymentProductId,
+                    success: { paymentProduct in
+                        self.paymentItem = paymentProduct
+                        self.creditCardError = nil
+                    },
+                    failure: { error in
+                        self.showAlert(text: error.localizedDescription)
+                    },
+                    apiFailure: { errorResponse in
+                        self.showAlert(text: errorResponse.errors[0].message)
+                    }
+                )
             }
-
         }
 
         private func showAlert(text: String) {

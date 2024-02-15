@@ -50,8 +50,6 @@ extension StartScreen {
 
         let emptyFieldError = "EmptyField".localized
 
-        var session: Session?
-        var context: PaymentContext?
         var paymentItems: PaymentItems?
 
         init() {
@@ -74,6 +72,26 @@ extension StartScreen {
         func proceedToCheckout() {
             isLoading = true
 
+            self.initializeConnectSDK()
+
+            ConnectSDK.clientApi.paymentItems(
+                success: { paymentItems in
+                    self.isLoading = false
+                    self.paymentItems = paymentItems
+                    self.showPaymentList = true
+                },
+                failure: { error in
+                    self.showAlert(text: error.localizedDescription)
+                    self.isLoading = false
+                },
+                apiFailure: { errorResponse in
+                    self.showAlert(text: errorResponse.errors[0].message)
+                    self.isLoading = false
+                }
+            )
+        }
+
+        private func initializeConnectSDK() {
             validateClientSessionId()
             validateCustomerID()
             validateClientApiUrl()
@@ -93,29 +111,41 @@ extension StartScreen {
                 return
             }
 
+            let sessionConfiguration = SessionConfiguration(
+                clientSessionId: clientSessionId,
+                customerId: customerID,
+                clientApiUrl: clientApiUrl,
+                assetUrl: assetsUrl
+            )
+
             // ***************************************************************************
             //
             // You can log of requests made to the server and responses received from the server
-            // by passing the `loggingEnabled` parameter to the Session constructor.
+            // by passing the `enableNetworkLogs` parameter to the ConnectSDKConfiguration constructor.
             // In the constructor below, the logging is disabled.
-            // You are also able to disable / enable logging at a later stage
-            // by calling `session.loggingEnabled = `, as shown below.
             // Logging should be disabled in production.
-            // To use logging in debug, but not in production, you can set `loggingEnabled` within a DEBUG flag.
+            // To use logging in debug, but not in production, you can initialize the ConnectSDKConfiguration object
+            // within a DEBUG flag.
             // If you use the DEBUG flag, you can take a look at this app's build settings
             // to see the setup you should apply to your own app.
             //
             // ***************************************************************************
 
-            session = Session(clientSessionId: clientSessionId,
-                              customerId: customerID,
-                              baseURL: clientApiUrl,
-                              assetBaseURL: assetsUrl,
-                              appIdentifier: AppConstants.ApplicationIdentifier,
-                              loggingEnabled: false)
-
+            var connectSDKConfiguration: ConnectSDKConfiguration?
             #if DEBUG
-                session?.loggingEnabled = true
+            connectSDKConfiguration = ConnectSDKConfiguration(
+                sessionConfiguration: sessionConfiguration,
+                enableNetworkLogs: true,
+                applicationId: AppConstants.ApplicationIdentifier,
+                ipAddress: nil
+            )
+            #else
+            connectSDKConfiguration = ConnectSDKConfiguration(
+                sessionConfiguration: sessionConfiguration,
+                enableNetworkLogs: false,
+                applicationId: AppConstants.ApplicationIdentifier,
+                ipAddress: nil
+            )
             #endif
 
             UserDefaults.standard.set(clientSessionId, forKey: AppConstants.ClientSessionId)
@@ -132,27 +162,29 @@ extension StartScreen {
             UserDefaults.standard.set(applePay, forKey: AppConstants.ApplePay)
 
             let amountOfMoney = PaymentAmountOfMoney(totalAmount: Int(amount) ?? 0, currencyCode: currencyCode)
-            context =
+            let context =
                 PaymentContext(
                     amountOfMoney: amountOfMoney,
                     isRecurring: recurringPayment,
                     countryCode: countryCode
                 )
-            guard let context = context else {
-                Macros.DLog(message: "Could not find context")
+
+            guard let connectSDKConfiguration else {
+                Macros.DLog(message: "Could not find connectSDKConfiguration")
                 self.showAlert(text: "Could not retrieve payment items. Please try again later.")
                 self.isLoading = false
                 return
             }
 
-            session?.paymentItems(for: context, groupPaymentProducts: groupProducts, success: { paymentItems in
-                self.isLoading = false
-                self.paymentItems = paymentItems
-                self.showPaymentList = true
-            }, failure: { error in
-                self.showAlert(text: error.localizedDescription)
-                self.isLoading = false
-            })
+            let paymentConfiguration = PaymentConfiguration(
+                paymentContext: context,
+                groupPaymentProducts: groupProducts
+            )
+
+            ConnectSDK.initialize(
+                connectSDKConfiguration: connectSDKConfiguration,
+                paymentConfiguration: paymentConfiguration
+            )
         }
 
         func pasteFromJson() {

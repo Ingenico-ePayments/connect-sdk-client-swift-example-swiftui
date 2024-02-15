@@ -15,7 +15,6 @@ struct TextFieldView: View {
     }
 
     // MARK: - Properties
-
     var placeholder: String
     var errorText: String?
     var isSecureTextEntry: Bool
@@ -25,13 +24,11 @@ struct TextFieldView: View {
     var isFocused: (Bool) -> Void
     var buttonCallback: (() -> Void)?
 
-    // MARK: State
-
+    // MARK: - State
     @Binding var text: String
     @State private var isSecureTextOn: Bool = true
 
     // MARK: - Init
-
     init(
         placeholder: String = "Placeholder",
         text: Binding<String>,
@@ -55,7 +52,6 @@ struct TextFieldView: View {
     }
 
     // MARK: - Body
-
     var body: some View {
         ZStack(alignment: .leading) {
             HStack(spacing: 20) {
@@ -123,50 +119,52 @@ struct TextFieldView: View {
 }
 
 // MARK: - Previews
-struct TextFieldView_Previews: PreviewProvider {
-    static var previews: some View {
+#Preview("ExampleText") {
+    TextFieldView(
+        text: .constant("some example text"),
+        errorText: "this is a short error",
+        isFocused: { _ in }
+    )
+    .previewLayout(.sizeThatFits)
+}
 
-        TextFieldView(
-            text: .constant("some example text"),
-            errorText: "this is a short error",
-            isFocused: { _ in }
-        )
-            .previewLayout(.sizeThatFits)
+#Preview("Password") {
+    TextFieldView(
+        placeholder: "Password",
+        text: .constant("some example text"),
+        errorText: "",
+        isSecureTextEntry: true,
+        isFocused: { _ in },
+        autocorrection: false,
+        autocapitalization: .none,
+        keyboardType: .default
+    )
+    .previewLayout(.sizeThatFits)
+}
 
-        TextFieldView(
-            placeholder: "Password",
-            text: .constant("some example text"),
-            errorText: "",
-            isSecureTextEntry: true,
-            isFocused: { _ in },
-            autocorrection: false,
-            autocapitalization: .none,
-            keyboardType: .default
-        )
-            .previewLayout(.sizeThatFits)
+#Preview("PasswordLongErrorDarkMode") {
+    TextFieldView(
+        placeholder: "Password",
+        text: .constant("some example text"),
+        errorText: "this is a very long error this, is a very long error, this is a very long error",
+        isSecureTextEntry: true,
+        isFocused: { _ in }
+    )
+    .previewLayout(.sizeThatFits)
+    .preferredColorScheme(.dark)
+}
 
-        TextFieldView(
-            placeholder: "Password",
-            text: .constant("some example text"),
-            errorText: "this is a very long error this, is a very long error, this is a very long error",
-            isSecureTextEntry: true,
-            isFocused: { _ in }
-        )
-            .previewLayout(.sizeThatFits)
-            .preferredColorScheme(.dark)
-
-        TextFieldView(
-            placeholder: "Password",
-            text: .constant("some example text"),
-            errorText: "",
-            isSecureTextEntry: true,
-            isFocused: { _ in },
-            autocorrection: false,
-            autocapitalization: .none,
-            keyboardType: .default
-        )
-            .previewLayout(.sizeThatFits)
-            .preferredColorScheme(.dark)
-    }
-
+#Preview("PasswordDarkMode") {
+    TextFieldView(
+        placeholder: "Password",
+        text: .constant("some example text"),
+        errorText: "",
+        isSecureTextEntry: true,
+        isFocused: { _ in },
+        autocorrection: false,
+        autocapitalization: .none,
+        keyboardType: .default
+    )
+    .previewLayout(.sizeThatFits)
+    .preferredColorScheme(.dark)
 }

@@ -11,7 +11,7 @@ import IngenicoConnectKit
 
 class AppConstants {
     static let sdkBundle = Bundle(path: SDKConstants.kSDKBundlePath!)!
-    static let ApplicationIdentifier = "SwiftUI Example Application/v1.0.3"
+    static let ApplicationIdentifier = "SwiftUI Example Application/v1.1.0"
     static let ClientSessionId = "ClientSessionId"
     static let CustomerId = "CustomerId"
     static let MerchantId = "MerchantId"

@@ -25,8 +25,9 @@ extension PaymentItemListScreen {
 
         @Published var showCardProductScreen: Bool = false
 
-        var session: Session?
-        var context: PaymentContext?
+        var context: PaymentContext {
+            ConnectSDK.paymentConfiguration.paymentContext
+        }
         var paymentItems: PaymentItems?
         var selectedPaymentItem: PaymentItem?
         var selectedAccountOnFile: AccountOnFile?
@@ -37,11 +38,9 @@ extension PaymentItemListScreen {
         var summaryItems: [PKPaymentSummaryItem] = []
         var authorizationViewController: PKPaymentAuthorizationViewController?
 
-        init(paymentItems: PaymentItems?, session: Session?, context: PaymentContext?) {
+        init(paymentItems: PaymentItems?) {
             super.init()
             self.paymentItems = paymentItems
-            self.session = session
-            self.context = context
             self.hasAccountsOnFile = paymentItems?.hasAccountsOnFile ?? false
             prepareItems(paymentItems: paymentItems)
         }
@@ -50,7 +49,7 @@ extension PaymentItemListScreen {
             // ***************************************************************************
             //
             // After selecting a payment product or an account on file associated to a
-            // payment product in the payment product selection screen, the Session
+            // payment product in the payment product selection screen, the ConnectSDK.clientApi
             // object is used to retrieve all information for this payment product.
             //
             // Afterwards, a screen is shown that allows the user to fill in all
@@ -69,48 +68,58 @@ extension PaymentItemListScreen {
 
             isLoading = true
 
-            if paymentItem is BasicPaymentProduct, let session = session, let context = context {
-                session.paymentProduct(withId: paymentItem.identifier, context: context) { [weak self] paymentProduct in
-                    if paymentItem.identifier.isEqual(SDKConstants.kApplePayIdentifier) {
-                        self?.isLoading = false
-                        self?.showApplePayPaymentItem(paymentProduct: paymentProduct)
-                    } else {
-                        self?.isLoading = false
-
-                        if paymentProduct.fields.paymentProductFields.count > 0 {
-                            let tempAccountOnFile: AccountOnFile?
-                            if accountOnFile {
-                                tempAccountOnFile =
-                                    paymentProduct.accountOnFile(withIdentifier: item.accountOnFileIdentifier)
-                                self?.selectedAccountOnFile = tempAccountOnFile
-                                self?.selectedPaymentItem = paymentProduct
-                                self?.show(paymentItem: paymentProduct)
-                            } else {
-                                self?.selectedAccountOnFile = nil
-                                self?.selectedPaymentItem = paymentProduct
-                                self?.show(paymentItem: paymentProduct)
-                            }
-                        } else {
-                            self?.showBottomSheet(text: "ProductNotAvailable".localized)
-                        }
-                    }
-                } failure: { error in
-                    self.showAlert(text: error.localizedDescription)
-                    self.isLoading = false
-                }
-
-            } else if paymentItem is BasicPaymentProductGroup, let session = session, let context = context {
-                session.paymentProductGroup(
+            if paymentItem is BasicPaymentProduct {
+                ConnectSDK.clientApi.paymentProduct(
                     withId: paymentItem.identifier,
-                    context: context,
-                    success: { [weak self] paymentProductGroup in
-                        self?.isLoading = false
-                        self?.selectedAccountOnFile = nil
-                        self?.selectedPaymentItem = paymentProductGroup
-                        self?.show(paymentItem: paymentProductGroup)
+                    success: { paymentProduct in
+                        if paymentItem.identifier.isEqual(SDKConstants.kApplePayIdentifier) {
+                            self.isLoading = false
+                            self.showApplePayPaymentItem(paymentProduct: paymentProduct)
+                        } else {
+                            self.isLoading = false
+
+                            if paymentProduct.fields.paymentProductFields.count > 0 {
+                                let tempAccountOnFile: AccountOnFile?
+                                if accountOnFile {
+                                    tempAccountOnFile =
+                                    paymentProduct.accountOnFile(withIdentifier: item.accountOnFileIdentifier)
+                                    self.selectedAccountOnFile = tempAccountOnFile
+                                    self.selectedPaymentItem = paymentProduct
+                                    self.show(paymentItem: paymentProduct)
+                                } else {
+                                    self.selectedAccountOnFile = nil
+                                    self.selectedPaymentItem = paymentProduct
+                                    self.show(paymentItem: paymentProduct)
+                                }
+                            } else {
+                                self.showBottomSheet(text: "ProductNotAvailable".localized)
+                            }
+                        }
                     },
                     failure: { error in
                         self.showAlert(text: error.localizedDescription)
+                        self.isLoading = false
+                    },
+                    apiFailure: { errorResponse in
+                        self.showAlert(text: errorResponse.errors[0].message)
+                        self.isLoading = false
+                    }
+                )
+            } else if paymentItem is BasicPaymentProductGroup {
+                ConnectSDK.clientApi.paymentProductGroup(
+                    withId: paymentItem.identifier,
+                    success: { paymentProductGroup in
+                        self.isLoading = false
+                        self.selectedAccountOnFile = nil
+                        self.selectedPaymentItem = paymentProductGroup
+                        self.show(paymentItem: paymentProductGroup)
+                    },
+                    failure: { error in
+                        self.showAlert(text: error.localizedDescription)
+                        self.isLoading = false
+                    },
+                    apiFailure: { errorResponse in
+                        self.showAlert(text: errorResponse.errors[0].message)
                         self.isLoading = false
                     }
                 )
@@ -217,7 +226,7 @@ extension PaymentItemListScreen {
         func showApplePayPaymentItem(paymentProduct: PaymentProduct?) {
             if SDKConstants.SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v: "13.0") &&
                PKPaymentAuthorizationViewController.canMakePayments() {
-                guard let context = context, let paymentProduct = paymentProduct else {
+                guard let paymentProduct = paymentProduct else {
                     return
                 }
 
@@ -317,37 +326,42 @@ extension PaymentItemListScreen {
             self.summaryItems = summaryItems
         }
 
-        // MARK: Payment request target
+        // MARK: - Payment request target
 
         func didSubmitPaymentRequest(_ paymentRequest: PaymentRequest, success: (() -> Void)?, failure: (() -> Void)?) {
-            guard let session = session else {
-                return
-            }
-
             isLoading = true
 
-            session.prepare(paymentRequest, success: {(_ preparedPaymentRequest: PreparedPaymentRequest) -> Void in
-                self.isLoading = false
+            ConnectSDK.encryptPaymentRequest(
+                paymentRequest,
+                success: { preparedPaymentRequest in
+                    self.isLoading = false
 
-                // ***************************************************************************
-                //
-                // The information contained in preparedPaymentRequest is stored in such a way
-                // that it can be sent to the Ingenico ePayments platform via your server.
-                //
-                // ***************************************************************************
-                self.preparedPaymentRequest = preparedPaymentRequest
-                success?()
-                self.showSuccessScreen = true
-            }, failure: { _ in
-                self.isLoading = false
+                    // ***************************************************************************
+                    //
+                    // The information contained in preparedPaymentRequest is stored in such a way
+                    // that it can be sent to the Ingenico ePayments platform via your server.
+                    //
+                    // ***************************************************************************
+                    self.preparedPaymentRequest = preparedPaymentRequest
+                    success?()
+                    self.showSuccessScreen = true
+                },
+                failure: { error in
+                    self.isLoading = false
+                    self.showAlert(text: error.localizedDescription)
 
-                self.showAlert(text: "SubmitErrorExplanation".localized)
+                    failure?()
+                },
+                apiFailure: { errorResponse in
+                    self.isLoading = false
+                    self.showAlert(text: errorResponse.errors[0].message)
 
-                failure?()
-            })
+                    failure?()
+                }
+            )
         }
 
-        // MARK: PKPaymentAuthorizationViewControllerDelegate
+        // MARK: - PKPaymentAuthorizationViewControllerDelegate
         // Sent to the delegate after the user has acted on the payment request.  The application
         // should inspect the payment to determine whether the payment request was authorized.
         //
@@ -356,7 +370,7 @@ extension PaymentItemListScreen {
         // The delegate must call completion with an appropriate authorization status, as may be determined
         // by submitting the payment credential to a processing gateway for payment authorization.
         //
-        // MARK: PKPaymentAuthorizationViewControllerDelegate
+        // MARK: - PKPaymentAuthorizationViewControllerDelegate
         // Sent to the delegate after the user has acted on the payment request.  The application
         // should inspect the payment to determine whether the payment request was authorized.
         //

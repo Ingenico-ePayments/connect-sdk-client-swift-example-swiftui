@@ -15,7 +15,7 @@ struct ProductTextFieldView: View {
         case image(Image)
     }
 
-    // MARK: State
+    // MARK: - State
     @Binding var text: String
 
     // MARK: - Properties
@@ -57,6 +57,7 @@ struct ProductTextFieldView: View {
         self.buttonCallback = buttonCallback
     }
 
+    // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {
             HStack {
@@ -108,6 +109,7 @@ struct ProductTextFieldView: View {
         }
     }
 
+    // MARK: - Views
     private func cardImage(image: Image) -> some View {
         image
             .resizable()
@@ -134,31 +136,36 @@ struct ProductTextFieldView: View {
     }
 }
 
-struct ProductTextField_Previews: PreviewProvider {
-    static var previews: some View {
-        ProductTextFieldView(leadingImage: Image(systemName: "creditcard"),
+// MARK: - Previews
+#Preview("FieldWithPlaceholder") {
+    ProductTextFieldView(leadingImage: Image(systemName: "creditcard"),
                          placeholder: "***** ****",
                          text: .constant(""),
                          errorText: nil,
                          onEditingChanged: { _ in }, onCommit: {})
-            .previewLayout(.sizeThatFits)
+        .previewLayout(.sizeThatFits)
+}
 
-        ProductTextFieldView(leadingImage: Image(systemName: "creditcard"),
+#Preview("FieldWithText") {
+    ProductTextFieldView(leadingImage: Image(systemName: "creditcard"),
                          text: .constant("12345"),
                          errorText: nil,
                          onEditingChanged: { _ in }, onCommit: {})
-            .previewLayout(.sizeThatFits)
+        .previewLayout(.sizeThatFits)
+}
 
-        ProductTextFieldView(leadingImage: Image(systemName: "creditcard"),
+#Preview("FieldWithTextAndError") {
+    ProductTextFieldView(leadingImage: Image(systemName: "creditcard"),
                          text: .constant("******"),
                          errorText: "error mesage",
                          onEditingChanged: { _ in }, onCommit: {})
-            .previewLayout(.sizeThatFits)
+        .previewLayout(.sizeThatFits)
+}
 
-        ProductTextFieldView(leadingImage: Image(systemName: "creditcard"),
-                         text: .constant("******"),
-                         errorText: "error mesage error mesage error mesage error mesage error mesage error mesage",
-                         onEditingChanged: { _ in }, onCommit: {})
-            .previewLayout(.sizeThatFits)
-    }
+#Preview("FieldWithTextAndLongError") {
+    ProductTextFieldView(leadingImage: Image(systemName: "creditcard"),
+                     text: .constant("******"),
+                     errorText: "error mesage error mesage error mesage error mesage error mesage error mesage",
+                     onEditingChanged: { _ in }, onCommit: {})
+        .previewLayout(.sizeThatFits)
 }

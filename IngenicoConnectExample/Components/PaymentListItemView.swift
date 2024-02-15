@@ -8,9 +8,12 @@
 import SwiftUI
 
 struct PaymentListItemView: View {
+
+    // MARK: - Properties
     var image: UIImage
     var text: String
 
+    // MARK: - Body
     var body: some View {
         HStack(spacing: 20) {
             Image(uiImage: image)
@@ -26,9 +29,7 @@ struct PaymentListItemView: View {
 }
 
 // MARK: - Previews
-struct PaymentListItemView_Previews: PreviewProvider {
-    static var previews: some View {
-        PaymentListItemView(image: UIImage(named: "MerchantLogo")!, text: "Example text")
-            .previewLayout(.sizeThatFits)
-    }
+#Preview {
+    PaymentListItemView(image: UIImage(named: "MerchantLogo")!, text: "Example text")
+        .previewLayout(.sizeThatFits)
 }

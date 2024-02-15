@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct HeaderView: View {
+
+    // MARK: - Body
     var body: some View {
         VStack(spacing: 10) {
             Image("logo_merchant")
@@ -31,8 +33,7 @@ struct HeaderView: View {
     }
 }
 
-struct HeaderView_Previews: PreviewProvider {
-    static var previews: some View {
-        HeaderView()
-    }
+// MARK: - Previews
+#Preview {
+    HeaderView()
 }

@@ -15,12 +15,14 @@ struct CardProductScreen: View {
         static let inactiveColor = Color(white: 0.8, opacity: 1.0)
     }
 
+    // MARK: - State
     @SwiftUI.Environment(\.presentationMode) var presentationMode
 
     @ObservedObject var viewModel: ViewModel
 
     @State private var showBottomSheet: Bool = false
 
+    // MARK: - Body
     var body: some View {
         LoadingView(isShowing: $viewModel.isLoading) {
             VStack {
@@ -196,6 +198,7 @@ struct CardProductScreen: View {
         }
     }
 
+    // MARK: - Views
     private var payButton: some View {
         Button(action: {
             viewModel.pay()
@@ -211,6 +214,7 @@ struct CardProductScreen: View {
         .disabled(!viewModel.payIsActive)
     }
 
+    // MARK: - Functions
     private func showBottomSheetWithCVVImage() {
         self.showBottomSheet = true
     }
@@ -224,16 +228,13 @@ struct CardProductScreen: View {
     }
 }
 
-struct CardProductScreen_Previews: PreviewProvider {
-    static var previews: some View {
-        CardProductScreen(
-            viewModel:
-                CardProductScreen.ViewModel(
-                    paymentItem: nil,
-                    session: nil,
-                    context: nil,
-                    accountOnFile: nil
-                )
-        )
-    }
+// MARK: - Previews
+#Preview {
+    CardProductScreen(
+        viewModel:
+            CardProductScreen.ViewModel(
+                paymentItem: nil,
+                accountOnFile: nil
+            )
+    )
 }

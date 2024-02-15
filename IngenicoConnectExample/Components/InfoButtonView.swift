@@ -8,8 +8,11 @@
 import SwiftUI
 
 struct InfoButtonView: View {
+
+    // MARK: - Properties
     var buttonCallback: (() -> Void)?
 
+    // MARK: - Body
     var body: some View {
         Image(systemName: "info.circle")
             .padding(.trailing, 20)
@@ -21,8 +24,7 @@ struct InfoButtonView: View {
     }
 }
 
-struct InfoButtonView_Previews: PreviewProvider {
-    static var previews: some View {
-        InfoButtonView()
-    }
+// MARK: - Previews
+#Preview {
+    InfoButtonView()
 }

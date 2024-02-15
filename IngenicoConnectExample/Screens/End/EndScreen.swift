@@ -10,8 +10,10 @@ import SwiftUI
 
 struct EndScreen: View {
 
+    // MARK: - State
     @ObservedObject var viewModel: ViewModel
 
+    // MARK: - Body
     var body: some View {
         ScrollView {
             VStack(alignment: .center, spacing: 20) {
@@ -61,8 +63,7 @@ struct EndScreen: View {
     }
 }
 
-struct EndScreen_Previews: PreviewProvider {
-    static var previews: some View {
-        EndScreen(viewModel: EndScreen.ViewModel(preparedPaymentRequest: nil))
-    }
+// MARK: - Previews
+#Preview {
+    EndScreen(viewModel: EndScreen.ViewModel(preparedPaymentRequest: nil))
 }
